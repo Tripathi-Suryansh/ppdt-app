@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PPDT practice</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PDF.js CDN for exact local PDF rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --google-bg: #F8F9FA;
+            --google-surface: #FFFFFF;
+            --google-border: #DADCE0;
+            --google-text: #202124;
+            --google-subtext: #5F6368;
+            --google-blue: #1A73E8;
+            --google-blue-hover: #1557B0;
+            --google-green: #1E8E3E;
+            --google-red: #D93025;
+            --google-yellow: #F9AB00;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--google-bg);
+            color: var(--google-text);
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .font-mono-timer {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Authentic SSB Hazy Stimulus Filter enabled by default */
+        .ssb-haze {
+            filter: blur(1.4px) contrast(0.88) brightness(1.04);
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.99);
+                opacity: 0.9;
+            }
+
+            50% {
+                transform: scale(1.01);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.99);
+                opacity: 0.9;
+            }
+        }
+
+        .animate-alarm {
+            animation: pulse-ring 0.6s infinite ease-in-out;
+        }
+    </style>
+</head>
+
+<body
+    class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-[#F8F9FA] text-[#202124] selection:bg-[#1A73E8] selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="shrink-0 border-b border-[#DADCE0] bg-white z-30">
+        <div class="w-full px-4 sm:px-6 py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer select-none" onclick="resetToSetup()">
+                <div
+                    class="w-11 h-11 rounded-xl bg-[#1A73E8] flex items-center justify-center text-white font-extrabold text-base tracking-wide shadow-sm">
+                    PPDT
+                </div>
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-[#202124]">PPDT practice</h1>
+            </div>
+
+            <!-- Right Controls: Only visible during Picture Observation -->
+            <div id="observeHeaderControls" class="hidden flex items-center gap-2.5 sm:gap-3">
+                <button onclick="skipToWriting()"
+                    class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[#F1F3F4] hover:bg-[#E8EAED] text-[#202124] border border-[#DADCE0] transition">
+                    Skip →
+                </button>
+                <div class="flex items-center gap-2 bg-[#FEF7E0] px-3.5 py-1.5 rounded-xl border border-[#F9AB00]">
+                    <span id="observeTimerText"
+                        class="font-mono-timer text-xl sm:text-2xl font-extrabold text-[#B06000]">00:30</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification Toast -->
+    <div id="toastBox"
+        class="fixed bottom-10 right-4 z-50 hidden max-w-xs sm:max-w-sm bg-[#202124] text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 text-xs sm:text-sm">
+        <span id="toastIcon" class="text-[#81C995] font-bold">●</span>
+        <div id="toastMsg">Notification</div>
+    </div>
+
+    <!-- 3-Second Countdown Overlay -->
+    <div id="countdownOverlay"
+        class="fixed inset-0 z-50 hidden bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+        <div class="text-xs font-bold uppercase tracking-widest text-[#5F6368] mb-2">Next Picture In</div>
+        <div id="countdownNumber" class="font-mono-timer text-8xl sm:text-9xl font-extrabold text-[#1A73E8]">3</div>
+    </div>
+
+    <!-- Main Viewport Container -->
+    <main class="flex-1 min-h-0 w-full flex flex-col justify-center overflow-hidden">
+
+        <!-- STAGE 1: READY / ONE-TIME PDF SETUP -->
+        <section id="stageSetup" class="w-full max-w-2xl mx-auto px-4 flex flex-col justify-center">
+            <div class="bg-white border border-[#DADCE0] rounded-2xl p-6 sm:p-8 shadow-sm">
+
+                <!-- INITIAL LOADING SPINNER -->
+                <div id="initialCheckLoader" class="py-10 flex flex-col items-center justify-center text-center gap-3">
+                    <svg class="animate-spin h-7 w-7 text-[#1A73E8]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    <p class="text-sm font-semibold text-[#5F6368]">Loading picture bank...</p>
+                </div>
+
+                <!-- FALLBACK UPLOAD BOX (Shown only if no PDF URL/cache is available) -->
+                <div id="uploadContainer" class="hidden">
+                    <div class="flex items-center justify-between gap-4 mb-4">
+                        <h2 class="text-xl sm:text-2xl font-bold text-[#202124]">Upload PPDT PDF</h2>
+                    </div>
+
+                    <label for="pdfFileInput" id="dropZone"
+                        class="flex flex-col items-center justify-center w-full h-36 sm:h-44 border-2 border-dashed border-[#DADCE0] hover:border-[#1A73E8] rounded-2xl cursor-pointer bg-[#F8F9FA] hover:bg-[#E8F0FE]/40 transition p-5 text-center">
+                        <svg class="w-9 h-9 text-[#1A73E8] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                            </path>
+                        </svg>
+                        <p class="text-sm sm:text-base font-semibold text-[#202124]" id="fileLabelTitle">
+                            Choose PDF file or drag & drop
+                        </p>
+                        <input id="pdfFileInput" type="file" accept="application/pdf" class="hidden" />
+                    </label>
+                </div>
+
+                <!-- READY PANEL -->
+                <div id="readyContainer" class="hidden space-y-5">
+                    <div
+                        class="flex items-center justify-between gap-3 bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-4 py-3">
+                        <div class="min-w-0">
+                            <div class="text-[11px] font-bold uppercase tracking-wider text-[#1E8E3E]">Picture Bank
+                                Ready</div>
+                            <div id="loadedPdfName" class="text-sm font-bold text-[#202124] truncate">ppdt.pdf</div>
+                        </div>
+                        <button id="changePdfBtn" onclick="triggerChangePDF()"
+                            class="shrink-0 text-xs font-semibold text-[#1A73E8] hover:underline px-2 py-1">
+                            Change PDF
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-3">
+                        <div class="w-full sm:w-44">
+                            <label
+                                class="block text-[11px] font-bold text-[#5F6368] uppercase tracking-wider mb-1">Specific
+                                Page (Optional)</label>
+                            <input type="number" id="specificPageInput" placeholder="Random" min="1"
+                                class="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-3.5 py-3 text-sm font-semibold text-[#202124] focus:outline-none focus:border-[#1A73E8]">
+                        </div>
+
+                        <button id="startBtn" onclick="startPPDTSession()"
+                            class="w-full sm:flex-1 py-3.5 px-6 rounded-xl font-bold text-base bg-[#1A73E8] hover:bg-[#1557B0] text-white shadow-sm transition flex items-center justify-center gap-2">
+                            <span>Start PPDT</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- STAGE 2: 30-SECOND PICTURE OBSERVATION -->
+        <section id="stageObserve"
+            class="hidden flex-1 min-h-0 w-screen flex items-center justify-center bg-white relative overflow-hidden">
+            <div id="canvasLoader" class="text-[#5F6368] font-semibold text-sm flex items-center gap-2">
+                <svg class="animate-spin h-5 w-5 text-[#1A73E8]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                <span>Loading picture...</span>
+            </div>
+            <canvas id="ppdtCanvas" class="w-full h-full object-contain ssb-haze"></canvas>
+        </section>
+
+        <!-- STAGE 3: 4-MINUTE STORY WRITING -->
+        <section id="stageWrite"
+            class="hidden flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-8 px-4 text-center">
+            <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#202124] select-none">
+                Write Story
+            </h2>
+            <button onclick="finishStoryEarly()"
+                class="px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base bg-[#1E8E3E] hover:bg-[#137333] text-white shadow-sm transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Done</span>
+            </button>
+        </section>
+
+        <!-- STAGE 4: TIME UP & ONE MORE STORY -->
+        <section id="stageComplete" class="hidden w-full max-w-2xl mx-auto px-4 flex flex-col justify-center">
+            <div id="pensDownBanner"
+                class="bg-white border border-[#DADCE0] rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-5">
+                <div
+                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#FCE8E6] text-[#D93025]">
+                    Time Up — Pens Down
+                </div>
+
+                <div class="bg-[#F8F9FA] border border-[#DADCE0] rounded-xl p-3 flex items-center justify-center">
+                    <img id="completeReferenceImg" alt="PPDT Picture"
+                        class="max-h-56 sm:max-h-64 w-auto object-contain rounded ssb-haze" />
+                </div>
+
+                <div class="flex items-center justify-center pt-1">
+                    <button onclick="startOneMoreStory()"
+                        class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base bg-[#1A73E8] hover:bg-[#1557B0] text-white shadow-sm transition flex items-center justify-center gap-2">
+                        <span>One More Story</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Minimal Footer -->
+    <footer class="shrink-0 py-2 px-4 text-center text-[11px] text-[#5F6368] bg-[#F8F9FA] border-t border-[#E8EAED]">
+        Made by : Suryansh Tripathi
+    </footer>
+
+    <script>
+        // ==========================================
+        // PRELOADED PDF URL (GitHub Pages)
+        // ==========================================
+        const PRELOADED_PDF_URL = "https://github.com/Tripathi-Suryansh/ppdt-app";
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // ==========================================
+        // 1. APPLICATION STATE
+        // ==========================================
+        let pdfDoc = null;
+        let totalPages = 0;
+        let currentPageNumber = 1;
+        let currentStimulusDataUrl = null;
+        let activeTimerInterval = null;
+        let audioCtx = null;
+
+        const LS_KEY_PRACTICED = 'ssb_practiced_pages';
+        const DB_NAME = 'PPDT_Practice_DB';
+        const STORE_NAME = 'pdf_store';
+        const PDF_RECORD_KEY = 'saved_ppdt_pdf';
+
+        // ==========================================
+        // 2. INDEXEDDB PERSISTENT STORAGE
+        // ==========================================
+        function openPDFDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function savePDFToIndexedDB(fileName, arrayBuffer) {
+            try {
+                const db = await openPDFDatabase();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    store.put({ name: fileName, data: arrayBuffer }, PDF_RECORD_KEY);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch (err) {
+                console.warn('Could not cache PDF locally:', err);
+            }
+        }
+
+        async function loadPDFFromIndexedDB() {
+            try {
+                const db = await openPDFDatabase();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.get(PDF_RECORD_KEY);
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => reject(req.error);
+                });
+            } catch {
+                return null;
+            }
+        }
+
+        // ==========================================
+        // 3. INITIALIZE ON PAGE LOAD
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', async () => {
+            const initialLoader = document.getElementById('initialCheckLoader');
+            const uploadContainer = document.getElementById('uploadContainer');
+            const readyContainer = document.getElementById('readyContainer');
+
+            if (PRELOADED_PDF_URL && PRELOADED_PDF_URL.trim() !== "") {
+                try {
+                    const loadingTask = pdfjsLib.getDocument(PRELOADED_PDF_URL.trim());
+                    pdfDoc = await loadingTask.promise;
+                    totalPages = pdfDoc.numPages;
+
+                    document.getElementById('loadedPdfName').textContent = `ppdt.pdf (${totalPages} Pages)`;
+                    document.getElementById('specificPageInput').max = totalPages;
+                    document.getElementById('changePdfBtn').classList.add('hidden');
+
+                    initialLoader.classList.add('hidden');
+                    readyContainer.classList.remove('hidden');
+                    return;
+                } catch (err) {
+                    console.error('Failed to load PRELOADED_PDF_URL:', err);
+                    showToast('Could not load hosted PDF URL. Falling back to local file.', true);
+                }
+            }
+
+            const savedRecord = await loadPDFFromIndexedDB();
+            if (savedRecord && savedRecord.data) {
+                try {
+                    const bufferCopy = savedRecord.data.slice(0);
+                    pdfDoc = await pdfjsLib.getDocument({ data: bufferCopy }).promise;
+                    totalPages = pdfDoc.numPages;
+
+                    document.getElementById('loadedPdfName').textContent = `${savedRecord.name} (${totalPages} Pages)`;
+                    document.getElementById('specificPageInput').max = totalPages;
+
+                    initialLoader.classList.add('hidden');
+                    readyContainer.classList.remove('hidden');
+                    return;
+                } catch (err) {
+                    console.error('Cached PDF corrupted:', err);
+                }
+            }
+
+            initialLoader.classList.add('hidden');
+            uploadContainer.classList.remove('hidden');
+        });
+
+        function triggerChangePDF() {
+            document.getElementById('readyContainer').classList.add('hidden');
+            document.getElementById('uploadContainer').classList.remove('hidden');
+            document.getElementById('fileLabelTitle').textContent = 'Select new PPDT PDF file';
+        }
+
+        // ==========================================
+        // 4. HELPERS & AUDIO
+        // ==========================================
+        function showToast(message, isError = false) {
+            const toastBox = document.getElementById('toastBox');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+            toastMsg.textContent = message;
+            toastIcon.className = isError ? 'text-[#F28B82] font-bold' : 'text-[#81C995] font-bold';
+            toastBox.classList.remove('hidden');
+            clearTimeout(window._toastTimeout);
+            window._toastTimeout = setTimeout(() => {
+                toastBox.classList.add('hidden');
+            }, 3500);
+        }
+
+        function getPracticedPages() {
+            try {
+                return JSON.parse(localStorage.getItem(LS_KEY_PRACTICED) || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function markPagePracticed(pageNum) {
+            const list = getPracticedPages();
+            if (!list.includes(pageNum)) {
+                list.push(pageNum);
+                localStorage.setItem(LS_KEY_PRACTICED, JSON.stringify(list));
+            }
+        }
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playBeep(durationSeconds = 2.0, frequency = 880) {
+            try {
+                initAudioContext();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+                gainNode.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 0.04);
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + Math.max(0.08, durationSeconds - 0.06));
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + durationSeconds);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + durationSeconds);
+            } catch (err) {
+                console.warn('Web Audio playback failed:', err);
+            }
+        }
+
+        // ==========================================
+        // 5. PDF FILE UPLOAD & RENDERER
+        // ==========================================
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        const dropZone = document.getElementById('dropZone');
+        const specificPageInput = document.getElementById('specificPageInput');
+        const ppdtCanvas = document.getElementById('ppdtCanvas');
+
+        pdfFileInput.addEventListener('change', (e) => {
+            if (e.target.files?.[0]) loadPDFFile(e.target.files[0]);
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-[#1A73E8]', 'bg-[#E8F0FE]/40');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-[#1A73E8]', 'bg-[#E8F0FE]/40');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-[#1A73E8]', 'bg-[#E8F0FE]/40');
+            if (e.dataTransfer.files?.[0]) loadPDFFile(e.dataTransfer.files[0]);
+        });
+
+        async function loadPDFFile(file) {
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                showToast('Please select a valid PDF file.', true);
+                return;
+            }
+
+            try {
+                document.getElementById('fileLabelTitle').textContent = `Saving "${file.name}"...`;
+                const arrayBuffer = await file.arrayBuffer();
+
+                await savePDFToIndexedDB(file.name, arrayBuffer);
+
+                const bufferCopy = arrayBuffer.slice(0);
+                pdfDoc = await pdfjsLib.getDocument({ data: bufferCopy }).promise;
+                totalPages = pdfDoc.numPages;
+
+                document.getElementById('loadedPdfName').textContent = `${file.name} (${totalPages} Pages)`;
+                specificPageInput.max = totalPages;
+
+                document.getElementById('uploadContainer').classList.add('hidden');
+                document.getElementById('readyContainer').classList.remove('hidden');
+                showToast('PDF saved! You will not need to upload it again.');
+            } catch (error) {
+                console.error('PDF load error:', error);
+                showToast('Could not read PDF file.', true);
+            }
+        }
+
+        async function renderExactPDFPage(pageNum) {
+            const loader = document.getElementById('canvasLoader');
+            loader.classList.remove('hidden');
+            ppdtCanvas.classList.add('hidden');
+
+            const page = await pdfDoc.getPage(pageNum);
+            const scale = 2.2;
+            const viewport = page.getViewport({ scale });
+
+            const context = ppdtCanvas.getContext('2d');
+            ppdtCanvas.width = viewport.width;
+            ppdtCanvas.height = viewport.height;
+
+            await page.render({ canvasContext: context, viewport }).promise;
+
+            currentStimulusDataUrl = ppdtCanvas.toDataURL('image/jpeg', 0.92);
+
+            loader.classList.add('hidden');
+            ppdtCanvas.classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 6. STAGE FLOW & TIMERS
+        // ==========================================
+        function showStage(stageId) {
+            ['stageSetup', 'stageObserve', 'stageWrite', 'stageComplete'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(stageId).classList.remove('hidden');
+
+            const observeControls = document.getElementById('observeHeaderControls');
+            if (stageId === 'stageObserve') {
+                observeControls.classList.remove('hidden');
+            } else {
+                observeControls.classList.add('hidden');
+            }
+        }
+
+        function pickNextPageNumber() {
+            const specific = parseInt(specificPageInput.value, 10);
+            if (!isNaN(specific) && specific >= 1 && specific <= totalPages) {
+                specificPageInput.value = '';
+                return specific;
+            }
+
+            const practiced = getPracticedPages();
+            let candidates = [];
+            for (let p = 1; p <= totalPages; p++) {
+                if (!practiced.includes(p)) {
+                    candidates.push(p);
+                }
+            }
+
+            if (candidates.length === 0) {
+                localStorage.removeItem(LS_KEY_PRACTICED);
+                for (let p = 1; p <= totalPages; p++) candidates.push(p);
+            }
+
+            return candidates[Math.floor(Math.random() * candidates.length)];
+        }
+
+        async function startPPDTSession() {
+            if (!pdfDoc) {
+                showToast('Please load your PDF file first.', true);
+                return;
+            }
+
+            initAudioContext();
+            currentPageNumber = pickNextPageNumber();
+            markPagePracticed(currentPageNumber);
+
+            showStage('stageObserve');
+            await renderExactPDFPage(currentPageNumber);
+            startObservationTimer();
+        }
+
+        function startObservationTimer() {
+            clearInterval(activeTimerInterval);
+            let secondsRemaining = 30;
+            const timerEl = document.getElementById('observeTimerText');
+            timerEl.textContent = '00:30';
+            timerEl.classList.remove('text-[#D93025]');
+            timerEl.classList.add('text-[#B06000]');
+
+            activeTimerInterval = setInterval(() => {
+                secondsRemaining--;
+                timerEl.textContent = `00:${String(Math.max(0, secondsRemaining)).padStart(2, '0')}`;
+
+                if (secondsRemaining <= 5 && secondsRemaining > 0) {
+                    timerEl.classList.remove('text-[#B06000]');
+                    timerEl.classList.add('text-[#D93025]');
+                }
+
+                if (secondsRemaining <= 0) {
+                    clearInterval(activeTimerInterval);
+                    playBeep(0.35, 660);
+                    startWritingStage();
+                }
+            }, 1000);
+        }
+
+        function skipToWriting() {
+            clearInterval(activeTimerInterval);
+            playBeep(0.3, 660);
+            startWritingStage();
+        }
+
+        function startWritingStage() {
+            showStage('stageWrite');
+            clearInterval(activeTimerInterval);
+
+            let remaining = 240;
+
+            activeTimerInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(activeTimerInterval);
+                    triggerTimeUpSequence();
+                }
+            }, 1000);
+        }
+
+        function finishStoryEarly() {
+            clearInterval(activeTimerInterval);
+            triggerTimeUpSequence();
+        }
+
+        function triggerTimeUpSequence() {
+            playBeep(2.0, 880);
+
+            document.getElementById('completeReferenceImg').src = currentStimulusDataUrl;
+            showStage('stageComplete');
+
+            const banner = document.getElementById('pensDownBanner');
+            banner.classList.add('animate-alarm');
+            setTimeout(() => banner.classList.remove('animate-alarm'), 2000);
+        }
+
+        function resetToSetup() {
+            clearInterval(activeTimerInterval);
+            showStage('stageSetup');
+        }
+
+        function startOneMoreStory() {
+            if (!pdfDoc) {
+                resetToSetup();
+                return;
+            }
+
+            initAudioContext();
+            const overlay = document.getElementById('countdownOverlay');
+            const numEl = document.getElementById('countdownNumber');
+
+            let count = 3;
+            numEl.textContent = count;
+            overlay.classList.remove('hidden');
+            playBeep(0.18, 660);
+
+            const cdInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    numEl.textContent = count;
+                    playBeep(0.18, 660);
+                } else {
+                    clearInterval(cdInterval);
+                    overlay.classList.add('hidden');
+                    startPPDTSession();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
