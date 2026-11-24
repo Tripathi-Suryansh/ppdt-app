@@ -10,9 +10,7 @@
     <!-- PDF.js CDN for exact local PDF rendering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Google Fonts: Inter & JetBrains Mono -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --google-bg: #F8F9FA;
@@ -31,8 +29,7 @@
             box-sizing: border-box;
         }
 
-        html,
-        body {
+        html, body {
             height: 100dvh;
             margin: 0;
             padding: 0;
@@ -45,7 +42,6 @@
         ::-webkit-scrollbar {
             display: none;
         }
-
         * {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -62,20 +58,9 @@
         }
 
         @keyframes pulse-ring {
-            0% {
-                transform: scale(0.99);
-                opacity: 0.9;
-            }
-
-            50% {
-                transform: scale(1.01);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(0.99);
-                opacity: 0.9;
-            }
+            0% { transform: scale(0.99); opacity: 0.9; }
+            50% { transform: scale(1.01); opacity: 1; }
+            100% { transform: scale(0.99); opacity: 0.9; }
         }
 
         .animate-alarm {
@@ -84,15 +69,13 @@
     </style>
 </head>
 
-<body
-    class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-[#F8F9FA] text-[#202124] selection:bg-[#1A73E8] selection:text-white">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-[#F8F9FA] text-[#202124] selection:bg-[#1A73E8] selection:text-white">
 
     <!-- Top Navigation Bar -->
     <header class="shrink-0 border-b border-[#DADCE0] bg-white z-30">
         <div class="w-full px-4 sm:px-6 py-2.5 flex items-center justify-between">
             <div class="flex items-center gap-3 cursor-pointer select-none" onclick="resetToSetup()">
-                <div
-                    class="w-11 h-11 rounded-xl bg-[#1A73E8] flex items-center justify-center text-white font-extrabold text-base tracking-wide shadow-sm">
+                <div class="w-11 h-11 rounded-xl bg-[#1A73E8] flex items-center justify-center text-white font-extrabold text-base tracking-wide shadow-sm">
                     PPDT
                 </div>
                 <h1 class="text-lg sm:text-xl font-bold tracking-tight text-[#202124]">PPDT practice</h1>
@@ -100,28 +83,24 @@
 
             <!-- Right Controls: Only visible during Picture Observation -->
             <div id="observeHeaderControls" class="hidden flex items-center gap-2.5 sm:gap-3">
-                <button onclick="skipToWriting()"
-                    class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[#F1F3F4] hover:bg-[#E8EAED] text-[#202124] border border-[#DADCE0] transition">
+                <button onclick="skipToWriting()" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[#F1F3F4] hover:bg-[#E8EAED] text-[#202124] border border-[#DADCE0] transition">
                     Skip →
                 </button>
                 <div class="flex items-center gap-2 bg-[#FEF7E0] px-3.5 py-1.5 rounded-xl border border-[#F9AB00]">
-                    <span id="observeTimerText"
-                        class="font-mono-timer text-xl sm:text-2xl font-extrabold text-[#B06000]">00:30</span>
+                    <span id="observeTimerText" class="font-mono-timer text-xl sm:text-2xl font-extrabold text-[#B06000]">00:30</span>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Notification Toast -->
-    <div id="toastBox"
-        class="fixed bottom-10 right-4 z-50 hidden max-w-xs sm:max-w-sm bg-[#202124] text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 text-xs sm:text-sm">
+    <div id="toastBox" class="fixed bottom-10 right-4 z-50 hidden max-w-xs sm:max-w-sm bg-[#202124] text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 text-xs sm:text-sm">
         <span id="toastIcon" class="text-[#81C995] font-bold">●</span>
         <div id="toastMsg">Notification</div>
     </div>
 
     <!-- 3-Second Countdown Overlay -->
-    <div id="countdownOverlay"
-        class="fixed inset-0 z-50 hidden bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+    <div id="countdownOverlay" class="fixed inset-0 z-50 hidden bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
         <div class="text-xs font-bold uppercase tracking-widest text-[#5F6368] mb-2">Next Picture In</div>
         <div id="countdownNumber" class="font-mono-timer text-8xl sm:text-9xl font-extrabold text-[#1A73E8]">3</div>
     </div>
@@ -135,13 +114,9 @@
 
                 <!-- INITIAL LOADING SPINNER -->
                 <div id="initialCheckLoader" class="py-10 flex flex-col items-center justify-center text-center gap-3">
-                    <svg class="animate-spin h-7 w-7 text-[#1A73E8]" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                        </circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
+                    <svg class="animate-spin h-7 w-7 text-[#1A73E8]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     <p class="text-sm font-semibold text-[#5F6368]">Loading picture bank...</p>
                 </div>
@@ -152,12 +127,9 @@
                         <h2 class="text-xl sm:text-2xl font-bold text-[#202124]">Upload PPDT PDF</h2>
                     </div>
 
-                    <label for="pdfFileInput" id="dropZone"
-                        class="flex flex-col items-center justify-center w-full h-36 sm:h-44 border-2 border-dashed border-[#DADCE0] hover:border-[#1A73E8] rounded-2xl cursor-pointer bg-[#F8F9FA] hover:bg-[#E8F0FE]/40 transition p-5 text-center">
+                    <label for="pdfFileInput" id="dropZone" class="flex flex-col items-center justify-center w-full h-36 sm:h-44 border-2 border-dashed border-[#DADCE0] hover:border-[#1A73E8] rounded-2xl cursor-pointer bg-[#F8F9FA] hover:bg-[#E8F0FE]/40 transition p-5 text-center">
                         <svg class="w-9 h-9 text-[#1A73E8] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
                         <p class="text-sm sm:text-base font-semibold text-[#202124]" id="fileLabelTitle">
                             Choose PDF file or drag & drop
@@ -168,35 +140,25 @@
 
                 <!-- READY PANEL -->
                 <div id="readyContainer" class="hidden space-y-5">
-                    <div
-                        class="flex items-center justify-between gap-3 bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-4 py-3">
+                    <div class="flex items-center justify-between gap-3 bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-4 py-3">
                         <div class="min-w-0">
-                            <div class="text-[11px] font-bold uppercase tracking-wider text-[#1E8E3E]">Picture Bank
-                                Ready</div>
+                            <div class="text-[11px] font-bold uppercase tracking-wider text-[#1E8E3E]">Picture Bank Ready</div>
                             <div id="loadedPdfName" class="text-sm font-bold text-[#202124] truncate">ppdt.pdf</div>
                         </div>
-                        <button id="changePdfBtn" onclick="triggerChangePDF()"
-                            class="shrink-0 text-xs font-semibold text-[#1A73E8] hover:underline px-2 py-1">
+                        <button id="changePdfBtn" onclick="triggerChangePDF()" class="shrink-0 text-xs font-semibold text-[#1A73E8] hover:underline px-2 py-1">
                             Change PDF
                         </button>
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-3">
                         <div class="w-full sm:w-44">
-                            <label
-                                class="block text-[11px] font-bold text-[#5F6368] uppercase tracking-wider mb-1">Specific
-                                Page (Optional)</label>
-                            <input type="number" id="specificPageInput" placeholder="Random" min="1"
-                                class="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-3.5 py-3 text-sm font-semibold text-[#202124] focus:outline-none focus:border-[#1A73E8]">
+                            <label class="block text-[11px] font-bold text-[#5F6368] uppercase tracking-wider mb-1">Specific Page (Optional)</label>
+                            <input type="number" id="specificPageInput" placeholder="Random" min="1" class="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-3.5 py-3 text-sm font-semibold text-[#202124] focus:outline-none focus:border-[#1A73E8]">
                         </div>
 
-                        <button id="startBtn" onclick="startPPDTSession()"
-                            class="w-full sm:flex-1 py-3.5 px-6 rounded-xl font-bold text-base bg-[#1A73E8] hover:bg-[#1557B0] text-white shadow-sm transition flex items-center justify-center gap-2">
+                        <button id="startBtn" onclick="startPPDTSession()" class="w-full sm:flex-1 py-3.5 px-6 rounded-xl font-bold text-base bg-[#1A73E8] hover:bg-[#1557B0] text-white shadow-sm transition flex items-center justify-center gap-2">
                             <span>Start PPDT</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
                     </div>
                 </div>
@@ -205,15 +167,11 @@
         </section>
 
         <!-- STAGE 2: 30-SECOND PICTURE OBSERVATION -->
-        <section id="stageObserve"
-            class="hidden flex-1 min-h-0 w-screen flex items-center justify-center bg-white relative overflow-hidden">
+        <section id="stageObserve" class="hidden flex-1 min-h-0 w-screen flex items-center justify-center bg-white relative overflow-hidden">
             <div id="canvasLoader" class="text-[#5F6368] font-semibold text-sm flex items-center gap-2">
-                <svg class="animate-spin h-5 w-5 text-[#1A73E8]" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
+                <svg class="animate-spin h-5 w-5 text-[#1A73E8]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>Loading picture...</span>
             </div>
@@ -221,43 +179,31 @@
         </section>
 
         <!-- STAGE 3: 4-MINUTE STORY WRITING -->
-        <section id="stageWrite"
-            class="hidden flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-8 px-4 text-center">
+        <section id="stageWrite" class="hidden flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-8 px-4 text-center">
             <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#202124] select-none">
                 Write Story
             </h2>
-            <button onclick="finishStoryEarly()"
-                class="px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base bg-[#1E8E3E] hover:bg-[#137333] text-white shadow-sm transition flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                </svg>
+            <button onclick="finishStoryEarly()" class="px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base bg-[#1E8E3E] hover:bg-[#137333] text-white shadow-sm transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 <span>Done</span>
             </button>
         </section>
 
         <!-- STAGE 4: TIME UP & ONE MORE STORY -->
         <section id="stageComplete" class="hidden w-full max-w-2xl mx-auto px-4 flex flex-col justify-center">
-            <div id="pensDownBanner"
-                class="bg-white border border-[#DADCE0] rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-5">
-                <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#FCE8E6] text-[#D93025]">
+            <div id="pensDownBanner" class="bg-white border border-[#DADCE0] rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-5">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#FCE8E6] text-[#D93025]">
                     Time Up — Pens Down
                 </div>
 
                 <div class="bg-[#F8F9FA] border border-[#DADCE0] rounded-xl p-3 flex items-center justify-center">
-                    <img id="completeReferenceImg" alt="PPDT Picture"
-                        class="max-h-56 sm:max-h-64 w-auto object-contain rounded ssb-haze" />
+                    <img id="completeReferenceImg" alt="PPDT Picture" class="max-h-56 sm:max-h-64 w-auto object-contain rounded ssb-haze" />
                 </div>
 
                 <div class="flex items-center justify-center pt-1">
-                    <button onclick="startOneMoreStory()"
-                        class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base bg-[#1A73E8] hover:bg-[#1557B0] text-white shadow-sm transition flex items-center justify-center gap-2">
+                    <button onclick="startOneMoreStory()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base bg-[#1A73E8] hover:bg-[#1557B0] text-white shadow-sm transition flex items-center justify-center gap-2">
                         <span>One More Story</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                            </path>
-                        </svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     </button>
                 </div>
             </div>
@@ -272,7 +218,7 @@
 
     <script>
         // ==========================================
-        // PRELOADED PDF URL (GitHub Pages)
+        // PRELOADED PDF URL
         // ==========================================
         const PRELOADED_PDF_URL = "ppdt.pdf";
 
@@ -348,22 +294,37 @@
             const uploadContainer = document.getElementById('uploadContainer');
             const readyContainer = document.getElementById('readyContainer');
 
+            const showUploadFallback = (msg) => {
+                if (msg) showToast(msg, true);
+                initialLoader.classList.add('hidden');
+                uploadContainer.classList.remove('hidden');
+            };
+
             if (PRELOADED_PDF_URL && PRELOADED_PDF_URL.trim() !== "") {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s max wait
+
                 try {
-                    const loadingTask = pdfjsLib.getDocument(PRELOADED_PDF_URL.trim());
-                    pdfDoc = await loadingTask.promise;
+                    const response = await fetch(PRELOADED_PDF_URL.trim(), { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const arrayBuffer = await response.arrayBuffer();
+
+                    await savePDFToIndexedDB('ppdt.pdf', arrayBuffer.slice(0));
+
+                    pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                     totalPages = pdfDoc.numPages;
 
                     document.getElementById('loadedPdfName').textContent = `ppdt.pdf (${totalPages} Pages)`;
                     document.getElementById('specificPageInput').max = totalPages;
-                    document.getElementById('changePdfBtn').classList.add('hidden');
 
                     initialLoader.classList.add('hidden');
                     readyContainer.classList.remove('hidden');
                     return;
                 } catch (err) {
-                    console.error('Failed to load PRELOADED_PDF_URL:', err);
-                    showToast('Could not load hosted PDF URL. Falling back to local file.', true);
+                    clearTimeout(timeoutId);
+                    console.error('Hosted PDF load error:', err);
                 }
             }
 
@@ -385,8 +346,7 @@
                 }
             }
 
-            initialLoader.classList.add('hidden');
-            uploadContainer.classList.remove('hidden');
+            showUploadFallback();
         });
 
         function triggerChangePDF() {
