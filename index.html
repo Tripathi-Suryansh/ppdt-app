@@ -7,9 +7,9 @@
     <title>PPDT practice</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PDF.js CDN for exact local PDF rendering -->
+    <!-- PDF.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,12 +17,7 @@
             --google-surface: #FFFFFF;
             --google-border: #DADCE0;
             --google-text: #202124;
-            --google-subtext: #5F6368;
             --google-blue: #1A73E8;
-            --google-blue-hover: #1557B0;
-            --google-green: #1E8E3E;
-            --google-red: #D93025;
-            --google-yellow: #F9AB00;
         }
 
         * { box-sizing: border-box; }
@@ -41,13 +36,11 @@
         * { -ms-overflow-style: none; scrollbar-width: none; }
 
         .font-mono-timer {
-            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-variant-numeric: tabular-nums;
         }
 
-        .ssb-haze {
-            filter: blur(1.4px) contrast(0.88) brightness(1.04);
-        }
+        .ssb-haze { filter: blur(1.4px) contrast(0.88) brightness(1.04); }
 
         @keyframes pulse-ring {
             0% { transform: scale(0.99); opacity: 0.9; }
@@ -58,7 +51,7 @@
     </style>
 </head>
 
-<body class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-[#F8F9FA] text-[#202124] selection:bg-[#1A73E8] selection:text-white">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-[#F8F9FA] text-[#202124]">
 
     <header class="shrink-0 border-b border-[#DADCE0] bg-white z-30">
         <div class="w-full px-4 sm:px-6 py-2.5 flex items-center justify-between">
@@ -66,11 +59,11 @@
                 <div class="w-11 h-11 rounded-xl bg-[#1A73E8] flex items-center justify-center text-white font-extrabold text-base tracking-wide shadow-sm">
                     PPDT
                 </div>
-                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-[#202124]">PPDT practice</h1>
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight">PPDT practice</h1>
             </div>
 
             <div id="observeHeaderControls" class="hidden flex items-center gap-2.5 sm:gap-3">
-                <button onclick="skipToWriting()" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[#F1F3F4] hover:bg-[#E8EAED] text-[#202124] border border-[#DADCE0] transition">
+                <button onclick="skipToWriting()" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[#F1F3F4] hover:bg-[#E8EAED] border border-[#DADCE0] transition">
                     Skip →
                 </button>
                 <div class="flex items-center gap-2 bg-[#FEF7E0] px-3.5 py-1.5 rounded-xl border border-[#F9AB00]">
@@ -91,45 +84,24 @@
     </div>
 
     <main class="flex-1 min-h-0 w-full flex flex-col justify-center overflow-hidden">
+        
         <!-- STAGE 1: READY / ONE-TIME PDF SETUP -->
         <section id="stageSetup" class="w-full max-w-2xl mx-auto px-4 flex flex-col justify-center">
             <div class="bg-white border border-[#DADCE0] rounded-2xl p-6 sm:p-8 shadow-sm">
 
-                <div id="initialCheckLoader" class="py-10 flex flex-col items-center justify-center text-center gap-3">
-                    <svg class="animate-spin h-7 w-7 text-[#1A73E8]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p class="text-sm font-semibold text-[#5F6368]">Loading picture bank securely...</p>
-                </div>
-
-                <!-- FALLBACK UPLOAD BOX -->
-                <div id="uploadContainer" class="hidden">
-                    <div class="flex items-center justify-between gap-4 mb-4">
-                        <h2 class="text-xl sm:text-2xl font-bold text-[#202124]">Upload PPDT PDF</h2>
-                    </div>
-                    <label for="pdfFileInput" id="dropZone" class="flex flex-col items-center justify-center w-full h-36 sm:h-44 border-2 border-dashed border-[#DADCE0] hover:border-[#1A73E8] rounded-2xl cursor-pointer bg-[#F8F9FA] hover:bg-[#E8F0FE]/40 transition p-5 text-center">
-                        <svg class="w-9 h-9 text-[#1A73E8] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <p class="text-sm sm:text-base font-semibold text-[#202124]" id="fileLabelTitle">Choose PDF file</p>
-                        <input id="pdfFileInput" type="file" accept="application/pdf" class="hidden" />
-                    </label>
-                </div>
-
-                <!-- READY PANEL -->
-                <div id="readyContainer" class="hidden space-y-5">
+                <!-- INSTANT READY PANEL -->
+                <div id="readyContainer" class="space-y-5">
                     <div class="flex items-center justify-between gap-3 bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-4 py-3">
                         <div class="min-w-0">
                             <div class="text-[11px] font-bold uppercase tracking-wider text-[#1E8E3E]">Picture Bank Ready</div>
-                            <div id="loadedPdfName" class="text-sm font-bold text-[#202124] truncate">ppdt.pdf</div>
+                            <div id="loadedPdfName" class="text-sm font-bold text-[#202124] truncate">Loading file size...</div>
                         </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-3">
                         <div class="w-full sm:w-44">
                             <label class="block text-[11px] font-bold text-[#5F6368] uppercase tracking-wider mb-1">Specific Page (Optional)</label>
-                            <input type="number" id="specificPageInput" placeholder="Random" min="1" class="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-3.5 py-3 text-sm font-semibold text-[#202124] focus:outline-none focus:border-[#1A73E8]">
+                            <input type="number" id="specificPageInput" placeholder="Random" min="1" class="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-xl px-3.5 py-3 text-sm font-semibold focus:outline-none focus:border-[#1A73E8]">
                         </div>
 
                         <button id="startBtn" onclick="startPPDTSession()" class="w-full sm:flex-1 py-3.5 px-6 rounded-xl font-bold text-base bg-[#1A73E8] hover:bg-[#1557B0] text-white shadow-sm transition flex items-center justify-center gap-2">
@@ -137,6 +109,20 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
                     </div>
+                </div>
+
+                <!-- FALLBACK UPLOAD BOX (Hidden unless network fails) -->
+                <div id="uploadContainer" class="hidden">
+                    <div class="flex items-center justify-between gap-4 mb-4">
+                        <h2 class="text-xl sm:text-2xl font-bold">Upload PPDT PDF</h2>
+                    </div>
+                    <label for="pdfFileInput" id="dropZone" class="flex flex-col items-center justify-center w-full h-36 sm:h-44 border-2 border-dashed border-[#DADCE0] hover:border-[#1A73E8] rounded-2xl cursor-pointer bg-[#F8F9FA] hover:bg-[#E8F0FE]/40 transition p-5 text-center">
+                        <svg class="w-9 h-9 text-[#1A73E8] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-sm sm:text-base font-semibold" id="fileLabelTitle">Choose PDF file</p>
+                        <input id="pdfFileInput" type="file" accept="application/pdf" class="hidden" />
+                    </label>
                 </div>
 
             </div>
@@ -149,14 +135,14 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>Loading picture...</span>
+                <span>Extracting picture...</span>
             </div>
             <canvas id="ppdtCanvas" class="w-full h-full object-contain ssb-haze"></canvas>
         </section>
 
         <!-- STAGE 3: WRITING -->
         <section id="stageWrite" class="hidden flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-8 px-4 text-center">
-            <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#202124] select-none">Write Story</h2>
+            <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight select-none">Write Story</h2>
             <button onclick="finishStoryEarly()" class="px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base bg-[#1E8E3E] hover:bg-[#137333] text-white shadow-sm transition flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 <span>Done</span>
@@ -187,41 +173,43 @@
     </footer>
 
     <script>
+        // ==========================================
+        // CONFIG
+        // ==========================================
+        const PRELOADED_PDF_URL = "ppdt.pdf";
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+        let pdfDocPromise = null;
         let pdfDoc = null;
-        let totalPages = 0;
+        let totalPages = 500; // default assumption until loaded
         let currentPageNumber = 1;
         let currentStimulusDataUrl = null;
         let activeTimerInterval = null;
         let audioCtx = null;
         const LS_KEY_PRACTICED = 'ssb_practiced_pages';
 
-        // 1. FAST INITIALIZATION (Uses HTTP Range Requests to fetch the 70MB file instantly)
-        window.addEventListener('DOMContentLoaded', async () => {
-            const initialLoader = document.getElementById('initialCheckLoader');
-            const readyContainer = document.getElementById('readyContainer');
-            const uploadContainer = document.getElementById('uploadContainer');
-
-            try {
-                // Fetch the hosted PDF directly. PDF.js will only download the specific bytes it needs!
-                const loadingTask = pdfjsLib.getDocument("ppdt.pdf");
-                pdfDoc = await loadingTask.promise;
-                totalPages = pdfDoc.numPages;
-
+        // ==========================================
+        // 1. INSTANT UI & STEALTH BACKGROUND LOADING
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Immediately start downloading the PDF metadata quietly in the background
+            pdfDocPromise = pdfjsLib.getDocument(PRELOADED_PDF_URL).promise;
+            
+            pdfDocPromise.then(doc => {
+                pdfDoc = doc;
+                totalPages = doc.numPages;
                 document.getElementById('loadedPdfName').textContent = `ppdt.pdf (${totalPages} Pages)`;
                 document.getElementById('specificPageInput').max = totalPages;
-
-                initialLoader.classList.add('hidden');
-                readyContainer.classList.remove('hidden');
-            } catch (err) {
-                console.warn('PDF not found locally, falling back to manual upload:', err);
-                initialLoader.classList.add('hidden');
-                uploadContainer.classList.remove('hidden');
-            }
+            }).catch(err => {
+                console.warn("Background load failed, showing manual upload:", err);
+                document.getElementById('readyContainer').classList.add('hidden');
+                document.getElementById('uploadContainer').classList.remove('hidden');
+            });
         });
 
+        // ==========================================
         // 2. HELPERS
+        // ==========================================
         function showToast(message, isError = false) {
             const toastBox = document.getElementById('toastBox');
             document.getElementById('toastMsg').textContent = message;
@@ -244,7 +232,6 @@
             }
         }
 
-        // 3. AUDIO
         function initAudioContext() {
             if (!audioCtx) {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -271,7 +258,9 @@
             } catch (err) { console.warn('Audio failed:', err); }
         }
 
-        // 4. MANUAL UPLOAD FALLBACK
+        // ==========================================
+        // 3. FALLBACK UPLOAD & RENDERING
+        // ==========================================
         document.getElementById('pdfFileInput').addEventListener('change', async (e) => {
             if (e.target.files?.[0]) {
                 const file = e.target.files[0];
@@ -287,7 +276,6 @@
             }
         });
 
-        // 5. RENDERING
         async function renderExactPDFPage(pageNum) {
             const loader = document.getElementById('canvasLoader');
             const canvas = document.getElementById('ppdtCanvas');
@@ -307,7 +295,9 @@
             canvas.classList.remove('hidden');
         }
 
-        // 6. LOGIC & TIMERS
+        // ==========================================
+        // 4. STAGE FLOW & TIMERS
+        // ==========================================
         function showStage(stageId) {
             ['stageSetup', 'stageObserve', 'stageWrite', 'stageComplete'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
@@ -334,11 +324,22 @@
 
         async function startPPDTSession() {
             initAudioContext();
-            currentPageNumber = pickNextPageNumber();
-            markPagePracticed(currentPageNumber);
-            showStage('stageObserve');
-            await renderExactPDFPage(currentPageNumber);
-            startObservationTimer();
+            showStage('stageObserve'); // Show the canvas immediately
+            
+            try {
+                // Ensure PDF is fully downloaded/parsed before proceeding
+                if (!pdfDoc && pdfDocPromise) {
+                    pdfDoc = await pdfDocPromise;
+                }
+                
+                currentPageNumber = pickNextPageNumber();
+                markPagePracticed(currentPageNumber);
+                await renderExactPDFPage(currentPageNumber);
+                startObservationTimer();
+            } catch (err) {
+                showToast("Failed to extract image. Please try again.", true);
+                resetToSetup();
+            }
         }
 
         function startObservationTimer() {
